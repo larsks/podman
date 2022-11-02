@@ -19,14 +19,41 @@ Please note that the `runlabel` command is intended to be run in trusted environ
 
 The contents of a label may refer to the following variables which will be substituted while processing the label.
 
-**IMAGE**
-The name of the image.  When executing `podman container runlabel label fedora` the `IMAGE` variable will be replaced with `fedora`.  Valid formats are `IMAGE`, `$IMAGE`, `${IMAGE}` and `=IMAGE`.
+- `IMAGE`
 
-**NAME**
-As specified by the `--name` option.  The format is identical to the one of the IMAGE attribute.
+  The name of the image.  When executing `podman container runlabel label fedora` the `IMAGE` variable will be replaced with `fedora`.  Valid formats are `IMAGE`, `$IMAGE`, `${IMAGE}` and `=IMAGE`.
 
-**PWD**
-Will be replaced with the current working directory.
+- `NAME`
+ 
+  As specified by the `--name` option.  The format is identical to the one of the IMAGE attribute.
+
+- `PWD`
+
+  Will be replaced with the current working directory. This can only be referred to as `$PWD`, and since `$` must be escaped, you end up with:
+
+  ```
+  LABEL RUN podman run -v \$PWD:/target -w /target \$IMAGE ls
+  ```
+
+- `OPT1`, `OPT2`, `OPT3`
+
+  Will be replaced with the value of the `--opt1`, `--opt2`, and `--opt3` command line options. You can use these to pass parameters to the script. If your Dockerfile contains:
+
+  ```
+  LABEL RUN podman run --rm \$IMAGE echo \$OPT1
+  ```
+
+  And you run it like this:
+
+  ```
+  podman container runlabel RUN example --opt1=foo
+  ```
+
+  The resulting command will be:
+
+  ```
+  podman run --rm example echo foo
+  ```
 
 ## OPTIONS
 
